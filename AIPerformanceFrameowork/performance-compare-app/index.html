@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Comparison Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:*;">
+
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5; /* Light grey background */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the start (top) */
+            min-height: 100vh;
+            padding-top: 20px; /* Add some padding at the top */
+        }
+
+        /* Container for the whole application */
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 900px;
+            box-sizing: border-box;
+            margin-bottom: 30px; /* Space at the bottom */
+        }
+
+        /* Application Title (visible on screen, hidden in print) */
+        .app-title {
+            text-align: center;
+            color: #0056b3; /* Darker blue */
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        /* Card-like styling for sections */
+        .card {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* File selection grid layout */
+        .file-selection-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Default to single column */
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) { /* Apply 2-column layout for screens wider than 768px */
+            .file-selection-grid {
+                grid-template-columns: repeat(2, 1fr); /* Two columns for parallel input fields */
+            }
+        }
+
+        /* Individual file input group */
+        .file-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-input-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .file-input-group input[type="text"] {
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            background-color: #e9ecef; /* Light grey background for readonly */
+            cursor: default;
+        }
+
+        .file-input-group button {
+            padding: 10px 15px;
+            background-color: #007bff; /* Blue */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .file-input-group button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-1px);
+        }
+
+        /* Generate Report Button */
+        .generate-button {
+            grid-column: 1 / -1; /* Span across all columns in the grid */
+            padding: 15px 25px;
+            background: linear-gradient(180deg, #28a745, #218838); /* Green gradient */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .generate-button:hover {
+            background: linear-gradient(180deg, #218838, #1e7e34);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .generate-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e6f7ff; /* Light blue background */
+            border: 1px solid #99e6ff;
+            border-radius: 10px;
+            color: #007bff;
+            font-size: 1.1em;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 123, 255, 0.1);
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Report Container */
+        .report-container {
+            margin-top: 30px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 25px;
+        }
+
+        .report-container h2 {
+            color: #0056b3;
+            margin-bottom: 15px;
+            font-size: 1.6em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 25px;
+        }
+
+        .report-container h2:first-of-type {
+            margin-top: 0; /* No top margin for the very first h2 */
+        }
+
+        /* Enhanced AI Summary Section */
+        .ai-summary-section {
+            background: linear-gradient(135deg, #e0f2f7 0%, #cceeff 100%); /* Light blue gradient */
+            border: 2px solid #a0d9f0;
+            border-radius: 15px; /* More rounded corners */
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center the heading */
+        }
+
+        .ai-summary-section h2 {
+            color: #004085; /* Darker blue for heading */
+            font-size: 2em; /* Larger heading */
+            font-weight: 800; /* Bolder */
+            margin-bottom: 20px;
+            border-bottom: none; /* Remove border from here */
+            padding-bottom: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05); /* Subtle text shadow */
+        }
+
+        .ai-summary-text {
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white background */
+            border: 1px solid #c0e0f0;
+            border-radius: 10px;
+            padding: 20px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            font-size: 1em;
+            color: #333;
+            text-align: left; /* Align text left within its box */
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-summary-text strong {
+            color: #0056b3; /* Highlight strong text in summary */
+            font-weight: 700;
+        }
+
+        /* Detailed Report Text */
+        .detailed-report-text {
+            background-color: #fdfdfd;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace; /* Monospace for raw data */
+            white-space: pre-wrap; /* Preserve formatting and line breaks */
+            overflow-x: auto; /* Enable horizontal scrolling for wide data */
+            border: 1px dashed #c0c0c0; /* Dashed border for raw report */
+            margin-bottom: 25px;
+            font-size: 0.9em;
+            text-align: left; /* Ensure text is left-aligned */
+        }
+
+        /* Chart Containers - Responsive Grid for smaller charts */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Default to single column on small screens */
+            gap: 20px; /* Space between charts */
+            margin-bottom: 25px;
+            justify-items: center; /* Center items horizontally within grid cells */
+            align-items: start; /* Align items to the top within grid cells */
+        }
+
+        @media (min-width: 600px) {
+            .chart-grid {
+                /* Two columns on medium screens, three on larger */
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px; /* Consistent height for charts in the grid */
+            width: 100%; /* Ensure it takes full width of its grid cell */
+            max-width: 400px; /* Prevent charts from getting too wide in larger layouts */
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex; /* Use flex to center canvas if needed */
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Canvas inside chart container */
+        .chart-container canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+
+        /* Export Button */
+        .export-button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(180deg, #6c757d, #5a6268); /* Grey gradient */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-button:hover {
+            background: linear-gradient(180deg, #5a6268, #495057);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .export-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Utility class to hide elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- Print Specific Styles --- */
+        @media print {
+            body {
+                background-color: #fff; /* White background for print */
+                padding: 0;
+                margin: 0;
+            }
+            .container {
+                box-shadow: none; /* Remove shadow for print */
+                border-radius: 0;
+                padding: 0;
+                width: 100%;
+                max-width: none;
+                margin: 0;
+            }
+            /* Hide file selection, generate button, and main app title for print */
+            .file-selection-grid,
+            .generate-button,
+            .app-title, /* This will now hide the moved title */
+            .loading-indicator,
+            .export-button {
+                display: none !important;
+            }
+            .report-container {
+                border-top: none; /* Remove top border from report container */
+                padding-top: 0;
+                margin-top: 0;
+            }
+            .ai-summary-section {
+                box-shadow: none;
+                border: none;
+                background: none; /* Remove gradients for print */
+                padding: 15px; /* Slightly less padding for print */
+                border-radius: 0;
+            }
+            .ai-summary-section h2 {
+                font-size: 1.5em; /* Smaller title for print */
+                color: #000; /* Black for print readability */
+                text-shadow: none;
+                margin-bottom: 10px;
+            }
+            .ai-summary-text {
+                box-shadow: none;
+                border: 1px solid #eee; /* Lighter border for print */
+                background-color: #fff;
+                padding: 15px;
+            }
+            .detailed-report-text {
+                border: 1px solid #eee; /* Lighter border for print */
+                padding: 15px;
+                font-size: 0.8em; /* Slightly smaller font for print */
+            }
+            .chart-grid {
+                /* For print, force 2 columns for a more consistent layout across pages */
+                grid-template-columns: 1fr 1fr;
+                gap: 10px; /* Smaller gap for print */
+                page-break-before: auto; /* Allow page breaks before if needed, but try to keep together */
+                page-break-inside: avoid; /* Avoid breaking the grid itself across pages */
+                margin-top: 20px; /* Add some space above charts in print */
+            }
+            .chart-container {
+                height: 200px; /* Even smaller charts for print to fit more on a page */
+                box-shadow: none;
+                border: 1px solid #eee;
+                padding: 10px;
+                /* Ensure charts are always centered on print */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                page-break-inside: avoid; /* Keep each chart on a single page */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="app-title">Performance Comparison Tool</h1>
+
+        <div class="file-selection-grid card">
+            <div class="file-input-group">
+                <label for="baselineJTLPath">Baseline JMeter (JTL) Report:</label>
+                <input type="text" id="baselineJTLPath" readonly placeholder="Select Baseline JTL file">
+                <button onclick="selectFile('baselineJTLPath', { name: 'JMeter JTL', extensions: ['jtl', 'csv'] })">Browse</button>
+            </div>
+
+            <div class="file-input-group">
+                <label for="latestJTLPath">Latest JMeter (JTL) Report:</label>
+                <input type="text" id="latestJTLPath" readonly placeholder="Select Latest JTL file">
+                <button onclick="selectFile('latestJTLPath', { name: 'JMeter JTL', extensions: ['jtl', 'csv'] })">Browse</button>
+            </div>
+
+            <div class="file-input-group">
+                <label for="baselineSplunkPath">Baseline Splunk Report (PDF/HTML):</label>
+                <input type="text" id="baselineSplunkPath" readonly placeholder="Select Baseline Splunk file">
+                <button onclick="selectFile('baselineSplunkPath', { name: 'Splunk Report', extensions: ['pdf', 'html'] })">Browse</button>
+            </div>
+
+            <div class="file-input-group">
+                <label for="latestSplunkPath">Latest Splunk Report (PDF/HTML):</label>
+                <input type="text" id="latestSplunkPath" readonly placeholder="Select Latest Splunk file">
+                <button onclick="selectFile('latestSplunkPath', { name: 'Splunk Report', extensions: ['pdf', 'html'] })">Browse</button>
+            </div>
+
+            <button id="generateReportBtn" class="generate-button">Generate Report</button>
+        </div>
+
+        <div id="loadingIndicator" class="loading-indicator hidden">
+            <div class="spinner"></div>
+            <p>Generating report and AI summary...</p>
+        </div>
+
+        <div id="reportContainer" class="report-container card hidden">
+            <div class="ai-summary-section">
+                <h2>Performance Report Powered by Gemini Flash 2.0</h2>
+                <div id="aiSummaryText" class="ai-summary-text">
+                    </div>
+            </div>
+
+            <h2>Detailed Comparison Report</h2>
+            <div id="reportText" class="detailed-report-text">
+                </div>
+
+            <h2>Key Performance Charts</h2>
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="responseTimeChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="throughputChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="errorRateChart"></canvas>
+                </div>
+            </div>
+
+            <button id="exportPdfBtn" class="export-button hidden">Export Report to PDF</button>
+        </div>
+    </div>
+
+    <script>
+        // Access the API exposed by preload.js (using window.api as per your existing code)
+        const electronAPI = window.api;
+
+        // Function to handle file selection via IPC (calls main process)
+        async function selectFile(inputId, fileFilterOptions) {
+            try {
+                const filePath = await electronAPI.selectFile({
+                    properties: ['openFile'],
+                    filters: [fileFilterOptions]
+                });
+                if (filePath) {
+                    document.getElementById(inputId).value = filePath;
+                }
+            } catch (error) {
+                console.error("Error selecting file:", error);
+                electronAPI.showErrorDialog("File Selection Error", `Failed to select file: ${error.message}`);
+            }
+        }
+
+        // Helper function to format data for display
+        function formatData(data, indent = 0) {
+            let result = '';
+            const indentStr = ' '.repeat(indent * 4);
+            for (const key in data) {
+                if (Object.hasOwnProperty.call(data, key)) {
+                    const value = data[key];
+                    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                        result += `${indentStr}${key}:\n${formatData(value, indent + 1)}`;
+                    } else if (Array.isArray(value)) {
+                        result += `${indentStr}${key}: [\n`;
+                        value.forEach(item => {
+                            // Ensure proper indentation for array items as well
+                            const itemString = JSON.stringify(item, null, 2).replace(/\n/g, `\n${indentStr}    `);
+                            result += `${indentStr}    ${itemString}\n`;
+                        });
+                        result += `${indentStr}]\n`;
+                    } else {
+                        result += `${indentStr}${key}: ${value}\n`;
+                    }
+                }
+            }
+            return result;
+        }
+
+        // Chart instances
+        let responseTimeChart;
+        let throughputChart;
+        let errorRateChart;
+
+        // Function to render charts
+        function renderCharts(jtlComparisonResults) {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: true }
+                }
+            };
+
+            const createChart = (canvasId, label, dataKey, unit) => {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.warn(`Canvas element with ID '${canvasId}' not found. Skipping chart creation.`);
+                    return null;
+                }
+                const ctx = canvas.getContext('2d');
+                const baseline = parseFloat(jtlComparisonResults[label]?.Baseline || 0);
+                const latest = parseFloat(jtlComparisonResults[label]?.Latest || 0);
+
+                if (isNaN(baseline) && isNaN(latest)) {
+                    if (Chart.getChart(canvasId)) {
+                        Chart.getChart(canvasId).destroy();
+                    }
+                    canvas.style.display = 'none'; // Hide canvas if no data
+                    return null;
+                }
+                canvas.style.display = 'block'; // Show canvas if data exists
+
+                const chartData = {
+                    labels: ['Baseline', 'Latest'],
+                    datasets: [{
+                        label: `${label} (${unit})`,
+                        data: [baseline, latest],
+                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 1
+                    }]
+                };
+
+                if (Chart.getChart(canvasId)) {
+                    Chart.getChart(canvasId).destroy();
+                }
+                return new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: chartOptions
+                });
+            };
+
+            responseTimeChart = createChart('responseTimeChart', 'Average Response Time (ms)', 'Average Response Time (ms)', 'ms');
+            throughputChart = createChart('throughputChart', 'Throughput (req/sec)', 'Throughput (req/sec)', 'req/sec');
+            errorRateChart = createChart('errorRateChart', 'Error Rate (%)', 'Error Rate (%)', '%');
+        }
+
+        // Event listener for the Generate Report button
+        document.getElementById('generateReportBtn').addEventListener('click', async () => {
+            const baselineJTLPath = document.getElementById('baselineJTLPath').value;
+            const latestJTLPath = document.getElementById('latestJTLPath').value;
+            const baselineSplunkPath = document.getElementById('baselineSplunkPath').value;
+            const latestSplunkPath = document.getElementById('latestSplunkPath').value;
+
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const reportContainer = document.getElementById('reportContainer');
+            const aiSummaryTextElement = document.getElementById('aiSummaryText');
+            const reportTextElement = document.getElementById('reportText');
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
+
+            // Reset previous results and hide report container and export button
+            aiSummaryTextElement.innerHTML = '';
+            reportTextElement.textContent = '';
+            reportContainer.classList.add('hidden');
+            exportPdfBtn.classList.add('hidden');
+
+            // Show loading indicator and disable button
+            loadingIndicator.classList.remove('hidden');
+            generateReportBtn.disabled = true;
+
+            try {
+                // Use the dynamically provided API base URL from the exposed config
+                const apiBaseUrl = window.config.expressApiBaseUrl;
+
+                // Make a fetch request to your Express server's API endpoint
+                const response = await fetch(`${apiBaseUrl}/api/generate-report`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        baselineJTLPath,
+                        latestJTLPath,
+                        baselineSplunkPath,
+                        latestSplunkPath
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log("Report generation successful:", result);
+
+                // Display AI Summary
+                aiSummaryTextElement.innerHTML = result.aiSummary.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+
+                // Format the comparison results for the detailed report
+                let detailedReportContent = "--- JMeter (JTL) Comparison ---\n" + formatData(result.jtlComparisonResults) + "\n\n";
+                detailedReportContent += "--- Splunk Report Comparison ---\n" + formatData(result.splunkComparisonResults) + "\n\n";
+                detailedReportContent += "--- Report Generation Complete ---";
+
+                reportTextElement.textContent = detailedReportContent;
+
+                renderCharts(result.jtlComparisonResults);
+
+                reportContainer.classList.remove('hidden');
+                exportPdfBtn.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error in generateReport function (renderer):", error);
+                window.api.showErrorDialog("Report Generation Error", `An error occurred: ${error.message}\nCheck Electron's developer console (Ctrl+Shift+I or Cmd+Option+I) for more details.`);
+                reportTextElement.textContent = `An error occurred: ${error.message}\n(See error dialog for details)`;
+                aiSummaryTextElement.textContent = "Failed to generate AI summary.";
+            } finally {
+                loadingIndicator.classList.add('hidden');
+                generateReportBtn.disabled = false;
+            }
+        });
+
+        // Event listener for the Export to PDF button
+        document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+            try {
+                const defaultFilename = `Performance_Comparison_Report_${new Date().toISOString().slice(0,10)}.pdf`;
+                const response = await electronAPI.exportToPdf(defaultFilename);
+                if (response && response.success) {
+                    electronAPI.showAlert("PDF Export", "Report successfully exported to PDF!");
+                } else if (response && response.message) {
+                    electronAPI.showAlert("PDF Export Canceled", response.message);
+                }
+            } catch (error) {
+                console.error("Error exporting PDF:", error);
+                electronAPI.showErrorDialog("PDF Export Error", `Failed to export report to PDF: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
