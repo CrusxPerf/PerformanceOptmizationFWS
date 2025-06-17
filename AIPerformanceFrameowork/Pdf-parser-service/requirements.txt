@@ -1,6 +1,0 @@
-Flask
-Werkzeug
-camelot-py[cv]
-pandas
-openpyxl
-ghostscript
