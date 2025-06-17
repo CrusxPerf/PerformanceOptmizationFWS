@@ -1,0 +1,33 @@
+{
+  "name": "performance-compare-app",
+  "version": "1.0.0",
+  "description": "Electron app for comparing performance test results (JTL and Splunk).",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "electron",
+    "performance",
+    "jmeter",
+    "jtl",
+    "splunk",
+    "comparison"
+  ],
+  "author": "Your Name/Org",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.0.0"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.11.4",
+    "axios": "^1.7.2",
+    "chart.js": "^4.4.3",
+    "cheerio": "^1.0.0-rc.12",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "pdf-parse": "^1.1.1"
+  }
+}
