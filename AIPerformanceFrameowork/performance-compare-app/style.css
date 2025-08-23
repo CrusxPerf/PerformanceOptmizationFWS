@@ -1,0 +1,267 @@
+/* General Body and Layout */
+body {
+    font-family: 'Inter', sans-serif; /* Using Inter font */
+    margin: 0;
+    padding: 20px;
+    background-color: #e0f2f7; /* Light blue background for a fresh feel */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* Container for the entire application */
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px; /* More rounded corners */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
+    width: 100%;
+    max-width: 1200px; /* Wider container for more content */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Space between sections */
+}
+
+/* Card-like styling for sections */
+.card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0; /* Subtle border */
+}
+
+/* Application Title */
+.app-title {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 2.5em; /* Larger title */
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+/* File Selection Grid */
+.file-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Responsive columns */
+    gap: 20px;
+}
+
+.file-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.file-input-group label {
+    font-weight: 600; /* Slightly bolder labels */
+    color: #444;
+    font-size: 0.95em;
+}
+
+.file-input-group input[type="text"] {
+    padding: 12px;
+    border: 1px solid #c0d9e6; /* Softer border color */
+    border-radius: 8px; /* More rounded input fields */
+    background-color: #f8fcfd; /* Very light background */
+    cursor: default;
+    font-size: 0.9em;
+    color: #555;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Inner shadow */
+}
+
+.file-input-group button {
+    padding: 10px 18px;
+    background-color: #007bff; /* Blue button */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    align-self: flex-end;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2); /* Button shadow */
+}
+
+.file-input-group button:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px); /* Slight lift effect */
+}
+
+.file-input-group button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 123, 255, 0.3);
+}
+
+/* Generate Button */
+.generate-button {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    background-image: linear-gradient(to right, #28a745, #218838); /* Gradient green */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-image 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); /* Green shadow */
+}
+
+.generate-button:hover {
+    background-image: linear-gradient(to right, #218838, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.generate-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+}
+
+/* Loading Indicator */
+.loading-indicator {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 25px;
+    background-color: #d4edda; /* Lighter green */
+    border: 1px solid #c3e6cb;
+    border-radius: 10px;
+    color: #155724; /* Darker green text */
+    font-weight: bold;
+    font-size: 1.1em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.spinner {
+    border: 5px solid rgba(0, 0, 0, 0.1);
+    border-top: 5px solid #28a745; /* Matching green spinner */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Report Output Section */
+.report-output {
+    margin-top: 25px;
+    background-color: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 2em;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+/* Charts Container */
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 2x2 grid for 4 charts */
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.chart-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    border: 1px solid #f0f0f0;
+}
+
+.chart-card h3 {
+    margin-top: 0;
+    color: #34495e;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+/* AI Summary Section */
+.ai-summary-section {
+    background-color: #f0f8ff; /* Light blue background for summary */
+    border: 1px solid #b0e0e6; /* Matching border */
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.summary-title {
+    color: #2c3e50;
+    font-size: 1.8em;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #c0d9e6; /* Dashed separator */
+}
+
+.summary-content {
+    font-size: 1.1em;
+    line-height: 1.8;
+    color: #36454F; /* Charcoal color */
+    text-align: justify; /* Justify text for a cleaner look */
+}
+
+.summary-content strong {
+    color: #0056b3; /* Highlight strong text */
+}
+
+/* Detailed Report Section */
+.detailed-report-section {
+    background-color: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.detailed-title {
+    color: #2c3e50;
+    font-size: 1.8em;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.scrollable-pre {
+    background-color: #f0f0f0; /* Slightly darker background for code/data */
+    padding: 20px;
+    border-radius: 8px;
+    max-height: 500px; /* Increased max height */
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.95em;
+    line-height: 1.6;
+    border: 1px solid #d0d0d0;
+}
